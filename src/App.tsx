@@ -4,6 +4,7 @@ import * as PageData from './questions/question-bank.json';
 import Page from './pages/page';
 import { Container, Row, Col } from 'react-bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { prop } from './util/util';
 
 class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
@@ -12,19 +13,37 @@ class App extends React.Component<AppProps, AppState> {
     this.state = {
       currentPage: 0,
       pages: PageData.pages,
-      userInput: {}
-    }
+      userInput: {} 
+    } 
   }
 
-  
+  submitPageHandler = (pageQuestionResponses: PQR) => {
+    console.log("Submit Page");
+    let responseValues: PQR = {};
+
+    for(let key in pageQuestionResponses) {
+      let v: string = "";
+      v = prop(pageQuestionResponses, key)['value'];
+
+      responseValues[key] = v;
+    }
+
+    this.setState({
+      ...this.state,
+      userInput: {
+        ...this.state.userInput,
+        responseValues
+      }
+    })
+  }
 
   render = () => {
     return (
       <>
         <Container fluid>
           <Row>
-            <Col md={{span: 12, offset: 2}}>
-              <Page pageQuestions={this.state.pages[this.state.currentPage]} />
+            <Col md={{span: 10, offset: 1}}>
+              <Page submitPageHandler={this.submitPageHandler} pageQuestions={this.state.pages[this.state.currentPage]} />
             </Col>
           </Row>
         </Container>

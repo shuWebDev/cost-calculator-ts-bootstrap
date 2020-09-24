@@ -3,6 +3,7 @@
 import React from 'react';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import { v4 as uuidv4 } from 'uuid';
 import NumericQuestion from './question-types/numericquestion';
@@ -14,6 +15,7 @@ class Page extends React.Component<Page.PageProps, Page.PageState> {
     super(props);
 
     this.state = {
+      pageQuestions: [],
       questionValues: {}
     };
   }
@@ -28,21 +30,26 @@ class Page extends React.Component<Page.PageProps, Page.PageState> {
       sID = {
         ...sID,
         ...temp
-      };
+      }; 
     }
 
     this.setState({
+      pageQuestions: this.props.pageQuestions,
       questionValues: sID
     });
     
     return;
   }
 
-  saveQuestionResponse = (e: React.FormEvent<HTMLButtonElement>, ssID: string, value: string) => {
+  saveQuestionResponse = (e: React.FormEvent<HTMLButtonElement>, ssID: string, value: string, questionArrayPosition: number) => {
 
     // NOTE: update the corresponding key in the local state for the input value. This both allows the input to be "controlled" by state, and for state to be accurate for when we save all user input from this page of questions.
+    let _pq: PageQuestion[] = this.state.pageQuestions;
+    _pq[questionArrayPosition].default = value;
+
     this.setState({
       ...this.state,
+      pageQuestions: _pq,
       questionValues: {
         ...this.state.questionValues,
         [`${ssID}`]: {
@@ -54,15 +61,16 @@ class Page extends React.Component<Page.PageProps, Page.PageState> {
     return;
   }
 
+
   loadPageQuestions = (q: PageQuestion[]) => {
     let _components: JSX.Element[] = [];
     
     for(let i in q) {
       if(q[i].controlType === "number") {
-        _components.push(<NumericQuestion questionData={this.props.pageQuestions[i]} saveQuestionHandler={this.saveQuestionResponse} />)
+        _components.push(<NumericQuestion key={uuidv4()} questionData={this.props.pageQuestions[i]} saveQuestionHandler={this.saveQuestionResponse} pageQuestionArrayPosition={parseInt(i)} />)
       }
       if(q[i].controlType === "radio") {
-        _components.push(<RadioQuestion questionData={this.props.pageQuestions[i]} saveQuestionHandler={this.saveQuestionResponse} />)
+        _components.push(<RadioQuestion key={uuidv4()} questionData={this.props.pageQuestions[i]} saveQuestionHandler={this.saveQuestionResponse} pageQuestionArrayPosition={parseInt(i)} />)
       }
     }
     return _components;
@@ -70,10 +78,16 @@ class Page extends React.Component<Page.PageProps, Page.PageState> {
 
   render = () => {
     return (
-      <Form>
+      <Form onSubmit={this.props.submitPageHandler} >
         <Form.Group controlId={uuidv4()}>
           <Row>
-            {this.loadPageQuestions(this.props.pageQuestions)}
+            {this.loadPageQuestions(this.state.pageQuestions)}
+          </Row>
+          <hr />
+          <Row>
+            <Col md={{ span: 2, offset: 4 }}>
+              <Button variant="outline-success" onClick={(e) => {e.preventDefault(); this.props.submitPageHandler(this.state.questionValues)}}>Submit Page</Button>
+            </Col>
           </Row>
         </Form.Group>
       </Form>

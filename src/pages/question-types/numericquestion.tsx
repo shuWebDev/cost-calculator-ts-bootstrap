@@ -31,6 +31,9 @@ class NumericQuestion extends React.Component<QuestionComponentProps, QuestionCo
         <Col md={{ span:1, offset: 1}} key={uuidv4()}>
           <Form.Group controlId={qd.controlId}>
             <Form.Label>{qd.label}</Form.Label>
+            <hr /> 
+            <Form.Text>{qd.text}</Form.Text>
+            <br />
             <Form.Control key={`input-${qd.controlId}`} size="lg" type="number" 
               min={(typeof qd.min !== "undefined")? qd.min : "0"} 
               max={(typeof qd.max !== "undefined")? qd.max : ""} 
@@ -38,8 +41,9 @@ class NumericQuestion extends React.Component<QuestionComponentProps, QuestionCo
               value={this.state.inputValue}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {this.handleChange(e)}}
             />
-            <Form.Text>{qd.text}</Form.Text>
-            <Button size="sm" variant="outline-primary" onClick={(e) => {this.props.saveQuestionHandler(e, qd.stateStorageID, this.state.inputValue)}}>Save</Button>
+            <hr />
+            <br />
+            <Button size="sm" variant="outline-primary" onClick={(e) => {this.props.saveQuestionHandler(e, qd.stateStorageID, this.state.inputValue, this.props.pageQuestionArrayPosition)}}>Save</Button>
           </Form.Group>
         </Col>
       );
