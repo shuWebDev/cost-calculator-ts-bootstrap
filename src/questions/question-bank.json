@@ -1,28 +1,42 @@
 {
   "pages": [
-    {
-      "controlId": "student-age",
-      "label": "Student Age",
-      "controlType": "number",
-      "text": "Please enter your current age.",
-      "min": "17",
-      "default": "17",
-      "step": "1",
-      "options": [],
-      "stateStorageID": "form-student-age"
-    },
-    {
-      "controlId": "planned-residence",
-      "label": "Planned Residency",
-      "controlType": "radio",
-      "text": "Where do you plan to reside while attending?",
-      "options": [
-        "On-Campus",
-        "With parents/family",
-        "Alone/off-campus/with roommate"
-      ],
-      "default": "On-Campus",
-      "stateStorageID": "form-planned-residence"
-    }
+    [
+      {
+        "controlId": "student-age",
+        "label": "Student Age",
+        "controlType": "number",
+        "text": "Please enter your current age.",
+        "min": "17",
+        "default": "17",
+        "step": "1",
+        "options": [],
+        "stateStorageID": "form-student-age"
+      },
+      {
+        "controlId": "planned-residence",
+        "label": "Planned Residency",
+        "controlType": "radio",
+        "text": "Where do you plan to reside while attending?",
+        "options": [
+          "On-Campus",
+          "With parents/family",
+          "Alone/off-campus/with roommate"
+        ],
+        "default": "On-Campus",
+        "stateStorageID": "form-planned-residence"
+      },
+      {
+        "controlId": "current-residence",
+        "label": "Current Residence",
+        "controlType": "radio",
+        "text": "Do you currently reside in New Jersey or another state/territory?",
+        "options": [
+          "New Jersey",
+          "Other State/Territory"
+        ],
+        "default": "New Jersey",
+        "stateStorageID": "form-current-residence"
+      }
+    ]
   ]
 }

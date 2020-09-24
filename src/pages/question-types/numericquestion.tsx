@@ -1,5 +1,6 @@
 import React from 'react';
 import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 import { Col }  from 'react-bootstrap'; 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -38,6 +39,7 @@ class NumericQuestion extends React.Component<QuestionComponentProps, QuestionCo
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {this.handleChange(e)}}
             />
             <Form.Text>{qd.text}</Form.Text>
+            <Button size="sm" variant="outline-primary" onClick={(e) => {this.props.saveQuestionHandler(e, qd.stateStorageID, this.state.inputValue)}}>Save</Button>
           </Form.Group>
         </Col>
       );

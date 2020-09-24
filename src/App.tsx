@@ -11,9 +11,12 @@ class App extends React.Component<AppProps, AppState> {
 
     this.state = {
       currentPage: 0,
-      pages: PageData.pages
+      pages: PageData.pages,
+      userInput: {}
     }
   }
+
+  
 
   render = () => {
     return (
@@ -21,7 +24,7 @@ class App extends React.Component<AppProps, AppState> {
         <Container fluid>
           <Row>
             <Col md={{span: 12, offset: 2}}>
-              <Page pageQuestions={this.state.pages} />
+              <Page pageQuestions={this.state.pages[this.state.currentPage]} />
             </Col>
           </Row>
         </Container>
