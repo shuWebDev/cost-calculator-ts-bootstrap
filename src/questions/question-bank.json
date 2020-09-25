@@ -37,6 +37,20 @@
         "default": "New Jersey",
         "stateStorageID": "form-current-residence"
       }
+    ],
+    [
+      {
+        "controlId": "highschool-transfer",
+        "label": "High School or Transfer",
+        "controlType": "radio",
+        "text": "Will you be a Freshman out of High School, or a Transfer Student?",
+        "options": [
+          "High School",
+          "Transfer"
+        ],
+        "default": "High School",
+        "stateStorageID": "form-highschool-transfer"
+      }
     ]
   ]
 }

@@ -15,29 +15,26 @@ class Page extends React.Component<Page.PageProps, Page.PageState> {
     super(props);
 
     this.state = {
-      pageQuestions: [],
+      pageQuestions: this.props.pageQuestions,
       questionValues: {}
     };
   }
 
   componentDidMount = () => {
-    let sID: LooseObject = {};
-    for(let q in this.props.pageQuestions) {
-      let temp: LooseObject = {};
-      temp[`${this.props.pageQuestions[q].stateStorageID}`] = {};
-      temp[`${this.props.pageQuestions[q].stateStorageID}`]['value'] = this.props.pageQuestions[q].default;
+    let formInputs: LooseObject = {};
 
-      sID = {
-        ...sID,
-        ...temp
-      }; 
+    // NOTE: for each question on the page, set the initial values in state so we can control the inputs.
+    for(let i of this.props.pageQuestions) {
+      formInputs = {
+        ...formInputs,
+        [`${i.stateStorageID}`]: i.default
+      };
     }
 
     this.setState({
-      pageQuestions: this.props.pageQuestions,
-      questionValues: sID
+      questionValues: formInputs
     });
-    
+
     return;
   }
 
@@ -65,15 +62,28 @@ class Page extends React.Component<Page.PageProps, Page.PageState> {
   loadPageQuestions = (q: PageQuestion[]) => {
     let _components: JSX.Element[] = [];
     
-    for(let i in q) {
+    for(let i=0; i<q.length; i++) {
       if(q[i].controlType === "number") {
-        _components.push(<NumericQuestion key={uuidv4()} questionData={this.props.pageQuestions[i]} saveQuestionHandler={this.saveQuestionResponse} pageQuestionArrayPosition={parseInt(i)} />)
+        _components.push(<NumericQuestion key={uuidv4()} questionData={this.state.pageQuestions[i]} currentValue={this.state.questionValues[`${q[i].stateStorageID}`]} changeHandler={this.handleChange} />)
       }
       if(q[i].controlType === "radio") {
-        _components.push(<RadioQuestion key={uuidv4()} questionData={this.props.pageQuestions[i]} saveQuestionHandler={this.saveQuestionResponse} pageQuestionArrayPosition={parseInt(i)} />)
+        _components.push(<RadioQuestion key={uuidv4()} questionData={this.state.pageQuestions[i]} currentValue={this.state.questionValues[`${q[i].stateStorageID}`]} changeHandler={this.handleChange} />)
       }
     }
-    return _components;
+    return _components; 
+  }
+
+  handleChange = (e: React.ChangeEvent<HTMLInputElement>, ssid: string) => {
+
+    this.setState({
+      ...this.state,
+      questionValues: {
+        ...this.state.questionValues,
+        [`${ssid}`]: e.currentTarget.value
+      }
+    });
+
+    return;
   }
 
   render = () => {
@@ -86,7 +96,7 @@ class Page extends React.Component<Page.PageProps, Page.PageState> {
           <hr />
           <Row>
             <Col md={{ span: 2, offset: 4 }}>
-              <Button variant="outline-success" onClick={(e) => {e.preventDefault(); this.props.submitPageHandler(this.state.questionValues)}}>Submit Page</Button>
+             {/* <Button variant="outline-success" onClick={(e) => {e.preventDefault(); this.props.submitPageHandler(this.state.questionValues)}}>Submit Page</Button>*/}
             </Col>
           </Row>
         </Form.Group>

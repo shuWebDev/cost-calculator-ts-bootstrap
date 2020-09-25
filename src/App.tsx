@@ -18,7 +18,7 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   submitPageHandler = (pageQuestionResponses: PQR) => {
-    console.log("Submit Page");
+    //console.log("Submit Page");
     let responseValues: PQR = {};
 
     for(let key in pageQuestionResponses) {
@@ -28,8 +28,10 @@ class App extends React.Component<AppProps, AppState> {
       responseValues[key] = v;
     }
 
+    let _cp: number = this.state.currentPage + 1;
+
     this.setState({
-      ...this.state,
+      currentPage: _cp,
       userInput: {
         ...this.state.userInput,
         responseValues
