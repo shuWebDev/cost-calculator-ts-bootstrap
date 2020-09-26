@@ -34,9 +34,14 @@ class App extends React.Component<AppProps, AppState> {
     });
   }
 
-  pageSubmitHandler = (e:React.FormEvent) => {
-    e.preventDefault();
-    console.log(e);
+  pageSubmitHandler = (e:React.MouseEvent<HTMLButtonElement>) => {
+    
+    let _cp: number = this.state.currentPage + 1;
+    this.setState({
+      currentPage: _cp
+    });
+
+    return;
   }
 
   inputChangeHandler = (e:React.ChangeEvent<HTMLInputElement>, ssID: string) => {
@@ -61,11 +66,12 @@ class App extends React.Component<AppProps, AppState> {
       if(Object.keys(this.state.userInput).length > 0) {
         return (
           <>
-            <Container fluid>
+            <Container>
               <Row>
-                <Col md={{span: 10, offset: 1}}>
+                <Col md={12}>
                   <Page 
                     pageQuestions={this.state.pages[this.state.currentPage]} 
+                    submitPageHandler={this.pageSubmitHandler}
                     stateInputValues={this.state.userInput} 
                     inputChangeHandler={this.inputChangeHandler}  
                   />

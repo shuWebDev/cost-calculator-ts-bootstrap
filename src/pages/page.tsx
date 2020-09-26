@@ -5,7 +5,8 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
-import { v4 as uuidv4 } from 'uuid';
+import Container from 'react-bootstrap/Container';
+//import { v4 as uuidv4 } from 'uuid';
 import NumericQuestion from './question-types/numericquestion';
 import RadioQuestion from './question-types/radioquestion';
 
@@ -29,13 +30,38 @@ export const Page: React.FC<Page.PageProps> = (props) => {
           key={`pageQuestion-${q}`}
         />);
         break;
+
+      case 'radio': 
+        pqInputs.push(
+          <RadioQuestion 
+            questionData={props.pageQuestions[q]} 
+            currentValue={props.stateInputValues[`${props.pageQuestions[q].stateStorageID}`]}
+            changeHandler={props.inputChangeHandler}
+            key={`pageQuestion-${q}`}
+          />);
+          break;
+
       default: pqInputs.push(<p key={`pageQuestion-${q}`}>Input Here</p>);
     }
   }
 
   return (
     <Form>
-      {pqInputs}
+      <Container>
+        <Row>
+          {pqInputs}
+        </Row>
+      </Container>
+      <hr />
+      <Row>
+        <Col md={{span: 2, offset: 4}}>
+          <Button variant="outline-success"
+            onClick={(e:React.MouseEvent<HTMLButtonElement>) => {props.submitPageHandler(e)}}
+          >
+            Continue »
+          </Button>
+        </Col>
+      </Row>
     </Form>
   );
 }

@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 export const RadioQuestion: React.FC<QuestionComponentProps>  = (props) => {
   let qd: PageQuestion = props.questionData;
   return (
-    <Col md={{span: 2, offset: 1}} key={uuidv4()}>
+    <Col md={{span: 2, offset: 1}}>
       <Form.Group controlId={qd.controlId}>
         <Form.Label>{qd.label}</Form.Label>
         <hr />
