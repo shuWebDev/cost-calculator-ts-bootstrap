@@ -15,42 +15,71 @@ class App extends React.Component<AppProps, AppState> {
       pages: PageData.pages,
       userInput: {} 
     } 
-  }
+  } 
 
-  submitPageHandler = (pageQuestionResponses: PQR) => {
-    //console.log("Submit Page");
-    let responseValues: PQR = {};
-
-    for(let key in pageQuestionResponses) {
-      let v: string = "";
-      v = prop(pageQuestionResponses, key)['value'];
-
-      responseValues[key] = v;
+  componentDidMount = () => {
+    let _ssidKeys: LooseObject = {};
+    for(let p of this.state.pages) {
+      for(let q in p) {
+        _ssidKeys = {
+          ..._ssidKeys,
+          [`${p[q].stateStorageID}`]: prop(p[q], "default")
+        }
+      }
     }
 
-    let _cp: number = this.state.currentPage + 1;
-
     this.setState({
-      currentPage: _cp,
+      ...this.state,
+      userInput: _ssidKeys
+    });
+  }
+
+  pageSubmitHandler = (e:React.FormEvent) => {
+    e.preventDefault();
+    console.log(e);
+  }
+
+  inputChangeHandler = (e:React.ChangeEvent<HTMLInputElement>, ssID: string) => {
+    console.log(`${ssID} :: ${e.currentTarget.value}`);
+    
+    // NOTE: given the id, update the input value in state
+    this.setState({
       userInput: {
         ...this.state.userInput,
-        responseValues
+        [`${ssID}`]: e.currentTarget.value
       }
-    })
+    });
+
+    return; 
   }
 
   render = () => {
-    return (
-      <>
-        <Container fluid>
-          <Row>
-            <Col md={{span: 10, offset: 1}}>
-              <Page submitPageHandler={this.submitPageHandler} pageQuestions={this.state.pages[this.state.currentPage]} />
-            </Col>
-          </Row>
-        </Container>
-      </>
-    )
+    // NOTE: make sure we're not on the last page
+    if(this.state.currentPage < this.state.pages.length) {
+      // NOTE: Important to ensure the state keys are there
+      // for the controlled inputs
+      if(Object.keys(this.state.userInput).length > 0) {
+        return (
+          <>
+            <Container fluid>
+              <Row>
+                <Col md={{span: 10, offset: 1}}>
+                  <Page 
+                    pageQuestions={this.state.pages[this.state.currentPage]} 
+                    stateInputValues={this.state.userInput} 
+                    inputChangeHandler={this.inputChangeHandler}  
+                  />
+                </Col>
+              </Row>
+            </Container>
+          </>
+        );
+      } else {
+        return <p>Loading...</p>;
+      }
+    } else {
+      return <p>Thank you.</p>;
+    }
   }
 }
 

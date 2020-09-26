@@ -10,13 +10,13 @@ export const RadioQuestion: React.FC<QuestionComponentProps>  = (props) => {
       <Form.Group controlId={qd.controlId}>
         <Form.Label>{qd.label}</Form.Label>
         <hr />
-        <Form.Text>{qd.text}</Form.Text>
-        <br />
         {
           qd.options.map((option, index) => {
             return <Form.Check key={`input-${qd.controlId}-${index}`} type="radio" id={option} name={qd.controlId} value={option} label={option} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {props.changeHandler(e, qd.stateStorageID)}} checked={props.currentValue === option} />
           })
         }
+        <hr />
+        <Form.Text>{qd.text}</Form.Text>
       </Form.Group>
     </Col>
   );
