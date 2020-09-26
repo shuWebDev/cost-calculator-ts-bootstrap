@@ -17,7 +17,14 @@ export const NumericQuestion: React.FC<QuestionComponentProps>  = (props) => {
           max={(typeof qd.max !== "undefined")? qd.max : ""} 
           step={(typeof qd.step !== "undefined")? qd.step : "1"} 
           value={props.currentValue}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {props.changeHandler(e, qd.stateStorageID)}}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            // NOTE: needed for aesthetics to keep floating point precision in items like GPA, but not in integer values like age
+            let n: number = Number(e.target.value);
+            if(Number.isInteger(n) === false) {
+              e.target.value = parseFloat(e.target.value).toFixed(2).toString();
+            }
+            props.changeHandler(e, qd.stateStorageID)
+          }}
         />
         <br />
         <hr />
