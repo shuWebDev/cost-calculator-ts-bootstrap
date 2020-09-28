@@ -69,7 +69,7 @@
         "controlId": "erw-sat",
         "label": "ERW SAT",
         "controlType": "number",
-        "text": "What was your SAT Reading/Writing score?",
+        "text": "What was your SAT Reading/Writing score? Leave as \u20180\u2018 if not applicable.",
         "min": "0",
         "max": "800",
         "default": "0",
@@ -81,7 +81,7 @@
         "controlId": "math-sat",
         "label": "Math SAT",
         "controlType": "number",
-        "text": "What was your SAT Math score?",
+        "text": "What was your SAT Math score? Leave as \u20180\u2018 if not applicable.",
         "min": "0",
         "max": "800",
         "default": "0",
@@ -93,13 +93,90 @@
         "controlId": "act",
         "label": "ACT",
         "controlType": "number",
-        "text": "What was your ACT score?",
+        "text": "What was your ACT score? Leave as \u20180\u2018 if not applicable.",
         "min": "0",
         "max": "36",
         "default": "0",
         "step": "1",
         "options": [],
         "stateStorageID": "form-act"
+      }
+    ],
+    [
+      {
+        "controlId": "marital-status",
+        "label": "Marital Status",
+        "controlType": "radio",
+        "text": "Are you (the student) married?",
+        "options": [
+          "No",
+          "Yes"
+        ],
+        "default": "No",
+        "stateStorageID": "form-marital-status"
+      },
+      {
+        "controlId": "children",
+        "label": "Children",
+        "controlType": "radio",
+        "text": "Are you (the student) the primary source of financial support for any children?",
+        "options": [
+          "No",
+          "Yes"
+        ],
+        "default": "No",
+        "stateStorageID": "form-children"
+      }
+    ],
+    [
+      {
+        "controlId": "people-in-household",
+        "label": "Household Members",
+        "controlType": "radio",
+        "text": "How many people are in your family\u2018s household? (Count yourself, your parent(s), and your parent(s)\u2018 other children who are under the age of 24)",
+        "options": [
+          "Two",
+          "Three",
+          "Four",
+          "Five",
+          "Six or more"
+        ],
+        "default": "Two",
+        "stateStorageID": "form-people-in-household"
+      },
+      {
+        "controlId": "number-in-college",
+        "label": "Family in College",
+        "controlType": "radio",
+        "text": "Of the number in your family in the previous question, how many will be in college next year? (Count yourself and your siblings, but do not count your parents)",
+        "options": [
+          "One Child",
+          "Two Children",
+          "Three or more Children"
+        ],
+        "default": "One Child",
+        "stateStorageID": "form-people-in-college"
+      }
+    ],
+    [
+      {
+        "controlId": "household-income",
+        "label": "Household Income",
+        "controlType": "radio",
+        "text": "What is your household income? (Include income earned by yourself and parent(s). Include income from work, child support and other sources. If your parent is single, separated or divorced, include the income for the parent with whom you live. If the parent with whom you live is remarried, include both your parent\u2018s income AND his.her spouse\u2018s income.",
+        "options": [
+          "Less than $30,000",
+          "$30,000 - $39,999",
+          "$40,000 - $49,999",
+          "$50,000 - $59,999",
+          "$60,000 - $69,999",
+          "$70,000 - $79,999",
+          "$80,000 - $80,999",
+          "$90,000 - $99,999",
+          "$100,000 or above"
+        ],
+        "default": "Less than $30,000",
+        "stateStorageID": "form-household-income"
       }
     ]
   ]
