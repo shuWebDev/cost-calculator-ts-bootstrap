@@ -1,0 +1,34 @@
+{
+  "logic":
+  [
+    {
+      "logicORLeft": [],
+      "logicORRight": []
+    },
+    {
+      "logicORLeft": [],
+      "logicORRight": []
+    },
+    {
+      "logicORLeft": [
+        "form-erw-sat",
+        "form-math-sat"
+      ],
+      "logicORRight": [
+        "form-act"
+      ]
+    },
+    {
+      "logicORLeft": [],
+      "logicORRight": []
+    },
+    {
+      "logicORLeft": [],
+      "logicORRight": []
+    },
+    {
+      "logicORLeft": [],
+      "logicORRight": []
+    }
+  ]
+}
