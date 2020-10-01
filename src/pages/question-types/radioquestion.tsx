@@ -1,7 +1,6 @@
 import React from 'react';
 import Form from 'react-bootstrap/Form';
 import { Col }  from 'react-bootstrap'; 
-import { v4 as uuidv4 } from 'uuid';
 
 export const RadioQuestion: React.FC<QuestionComponentProps>  = (props) => {
   let qd: PageQuestion = props.questionData;

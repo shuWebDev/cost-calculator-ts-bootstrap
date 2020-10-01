@@ -156,9 +156,7 @@
         ],
         "default": "One Child",
         "stateStorageID": "form-people-in-college"
-      }
-    ],
-    [
+      },
       {
         "controlId": "household-income",
         "label": "Household Income",

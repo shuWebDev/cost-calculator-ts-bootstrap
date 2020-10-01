@@ -6,7 +6,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
-//import { v4 as uuidv4 } from 'uuid';
 import NumericQuestion from './question-types/numericquestion';
 import RadioQuestion from './question-types/radioquestion';
 

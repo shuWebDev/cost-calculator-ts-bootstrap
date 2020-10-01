@@ -1,22 +1,37 @@
 ///<reference path="./typings/app.d.ts" />
 import React from 'react';
+import * as EFCData from './data/efc.json';
+import * as MeritData from './data/merit.json';
+import * as PellData from './data/merit.json';
+import * as TAGData from './data/tag.json';
+import * as POAData from './data/tag.json';
+import Disclaimer from './pages/disclaimer';
 import * as PageData from './questions/question-bank.json';
 import * as QuestionLogic from './questions/question-logic.json';
 import Page from './pages/page';
+import Summary from './pages/summary';
 import { Container, Row, Col } from 'react-bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { prop } from './util/util';
-import { CLIENT_RENEG_LIMIT } from 'tls';
+import { prop } from './util/util'; 
+import * as Calculator from './calculation/calculation';
 
 class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
 
     this.state = {
+      calculationTables: {
+        EFC: EFCData,
+        Merit: MeritData,
+        Pell: PellData, 
+        TAG: TAGData,
+        POA: POAData
+      },
       currentPage: 0,
       pages: PageData.pages,
       questionLogic: QuestionLogic.logic,
-      userInput: {} 
+      userInput: {},
+      disclaimerAccepted: false
     } 
   } 
 
@@ -48,7 +63,7 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   inputChangeHandler = (e:React.ChangeEvent<HTMLInputElement>, ssID: string) => {
-    console.log(`${ssID} :: ${e.currentTarget.value}`);
+    //console.log(`${ssID} :: ${e.currentTarget.value}`);
     
     // NOTE: given the id, update the input value in state
     this.setState({
@@ -104,35 +119,58 @@ class App extends React.Component<AppProps, AppState> {
     return; 
   }
 
+  acceptHandler = (e:React.MouseEvent<HTMLButtonElement>) => {
+    if(!this.state.disclaimerAccepted) {
+      this.setState({
+        disclaimerAccepted: true
+      });
+    }
+    return;
+  }
+
   render = () => {
-    // NOTE: make sure we're not on the last page
-    if(this.state.currentPage < this.state.pages.length) {
-      let _ql: LogicOrPage = this.state.questionLogic[this.state.currentPage];
-      //console.log(this.state.questionLogic);
-      // NOTE: Important to ensure the state keys are there
-      // for the controlled inputs
-      if(Object.keys(this.state.userInput).length > 0) {
-        return (
-          <>
-            <Container>
-              <Row>
-                <Col md={12}>
-                  <Page 
-                    pageQuestions={this.state.pages[this.state.currentPage]} 
-                    submitPageHandler={this.pageSubmitHandler}
-                    stateInputValues={this.state.userInput} 
-                    inputChangeHandler={this.inputChangeHandler}  
-                  />
-                </Col>
-              </Row>
-            </Container>
-          </>
-        );
-      } else {
-        return <p>Loading...</p>;
-      }
+    // NOTE: User must accept the disclaimer first
+    if(!this.state.disclaimerAccepted) {
+      return (
+        <Container>
+          <h2 className="text-center">Net Cost Calculator</h2>
+          <Row>
+            <Col md={{span:8, offset: 2}}>
+              <Disclaimer acceptHandler={this.acceptHandler} />
+              </Col>
+          </Row>
+        </Container>
+      );
     } else {
-      return <p>Thank you.</p>;
+      // NOTE: make sure we're not on the last page
+      if(this.state.currentPage < this.state.pages.length) {
+        //console.log(this.state.questionLogic);
+        // NOTE: Important to ensure the state keys are there
+        // for the controlled inputs
+        if(Object.keys(this.state.userInput).length > 0) {
+          return (
+            <>
+              <Container>
+                <h2 className="text-center">Net Cost Calculator</h2>
+                <Row>
+                  <Col md={12}>
+                    <Page 
+                      pageQuestions={this.state.pages[this.state.currentPage]} 
+                      submitPageHandler={this.pageSubmitHandler}
+                      stateInputValues={this.state.userInput} 
+                      inputChangeHandler={this.inputChangeHandler}  
+                    />
+                  </Col>
+                </Row>
+              </Container>
+            </>
+          );
+        } else {
+          return <p>Loading...</p>;
+        }
+      } else {
+        return <Summary />;
+      }
     }
   }
 }

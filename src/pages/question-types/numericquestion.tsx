@@ -21,7 +21,7 @@ export const NumericQuestion: React.FC<QuestionComponentProps>  = (props) => {
             // NOTE: needed for aesthetics to keep floating point precision in items like GPA, but not in integer values like age
             let n: number = Number(e.target.value);
             if(Number.isInteger(n) === false) {
-              e.target.value = parseFloat(e.target.value).toFixed(2).toString();
+              e.target.value = parseFloat(e.target.value).toString();
             }
             props.changeHandler(e, qd.stateStorageID)
           }}
