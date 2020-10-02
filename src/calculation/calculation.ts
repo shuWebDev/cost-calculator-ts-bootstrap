@@ -1,258 +1,340 @@
 ///<reference path="../typings/calculation.d.ts" />
 
-export module Calculation {
-  
-  // NOTE: Generates the final report
-  export function generateReport(): boolean {
-    return true;
-  }
-
-  /* NOTE: determineDependency
-  *  given user's age, marital status, and whether they
-  *  support children, determine if they are a dependent
-  */
-  function determineDependency(age: number, childSupport: boolean, married: boolean): string {
-    let dependent: string = "";
-
-    // NOTE: check if age <= 24
-    if((age <= 24) || (married === false)) {
-      dependent = "efcdDependent";
-    } else {
-      if(childSupport === true) {
-        dependent = "efcNotDependentButHasDependent";
-      } else {
-        dependent = "efcNotDependentAndNoDependent";
-      }
-    }
-
-    return dependent;
-  }
 
   
-  /* NOTE:  calculatedPell
-  *  given EFC value and Pell Table, returns the Pell
-  *  Grant amout the user can be awarded 
+// NOTE: Generates the final report
+export function generateReport(calculationData: CalculationData): any {
+  /* NOTE: determine our dependency status to we can calculate
+  *  our EFC value which most subsequent calculations depend
+  *  on. 
   */ 
-  function calculatePell(efc: number, pellTable: number[][]): number {
-    let calculatedPell = 0;
+  let _dependency: string = determineDependency(
+    calculationData.userInput['form-student-age'],
+    calculationData.userInput['form-children'],
+    calculationData.userInput['marital-status']
+  );
 
-    for(let row of pellTable) {
-      if((efc >= row[0]) && efc <= row[1]) {
-        calculatedPell = row[2];
-        break; 
-      }
-    }
-    
-    return calculatedPell;
+  console.log(_dependency);
+  console.log(calculationData.calculationTables.EFC.default);
+
+  /* NOTE: given the table indicated by _dependency, match up
+  *  the number in family and number in college (of that family),
+  *  and then use the associated incomeRanges array to find the value
+  *  at the index corresponding to the user's income range. This value
+  *  will be their EFC value
+  */ 
+  let _efcValue: number = calculateEFC(
+    _dependency, 
+    calculationData.calculationTables.EFC.default[`${_dependency}`],
+    resolveNumberInCollege(calculationData.userInput['form-people-in-college']),
+    resolveNumberInFamily(calculationData.userInput['form-people-in-household']),
+    resolveIncomeRange(calculationData.userInput['form-household-income'])
+  );
+
+  return _efcValue;
+}
+
+function resolveNumberInFamily(value: string): number {
+  let returnValue: number = 0;
+
+  switch(value) {
+    case "Three": returnValue = 3; break;
+    case "Four": returnValue = 4; break;
+    case "Five": returnValue = 5; break;
+    case "Six or more": returnValue = 6; break;
+    default: returnValue = 2; break;
   }
 
-  /* NOTE: calculateTAG
-  *  given the user's EFC value, use the TAG Table to 
-  *  determine their Tuition Assistance Grant, if any
-  */
-  function calculateTAG(efc: number, residency: string, tagTable: number[][]): number {
-    // NOTE: will remain 0 if user does not reside in New Jersey
-    let calculatedTAG = 0; 
+  return returnValue;
+}
 
-    if(residency === "New Jersey") {
-      for(let r of tagTable) {
-        if((efc >= r[0]) && efc <= r[1]) {
-          calculatedTAG = r[2];
-          break;
-        }
-      }
+function resolveNumberInCollege(value: string): number {
+  let returnValue: number = 0;
+
+  switch(value) {
+    case "One Child": returnValue = 1; break;
+    case "Two Children": returnValue = 2; break;
+    default: returnValue = 3; break;
+  }
+
+  return returnValue;
+}
+
+/* NOTE: resolveIncomeRange
+*  given the income range as a string from the value of the radio
+*  button the user selected, resolve into a number corresponding
+*  to the EFC value for that income range's EFC value in the table
+*/
+function resolveIncomeRange(range: string): number {
+  let index: number = 0;
+  console.log(range);
+  switch(range) {
+    case "$30,000 - $39,999": index = 1; break;
+    case "$40,000 - $49,999": index = 2; break;
+    case "$50,000 - $59,999": index = 3; break;
+    case "$60,000 - $69,999": index = 4; break;
+    case "$70,000 - $79,999": index = 5; break;
+    case "$80,000 - $89,999": index = 6; break;
+    case "$90,000 - $99,999": index = 7; break;
+    case "$100,000 or above": index = 8; break;
+    default: index = 0; break;
+   }  
+
+   console.log(index);
+  return index;
+}
+
+/* NOTE: determineDependency
+*  given user's age, marital status, and whether they
+*  support children, determine if they are a dependent.
+* 
+*  returns: the key name of the table to look at to determine
+*  the user's EFC value.
+*/
+function determineDependency(age: string, childSupport: string, married: string): string {
+  let dependent: string = "";
+
+  // NOTE: check if age <= 24
+  if((parseInt(age) <= 24) || (married === "No")) {
+    dependent = "efcDependent";
+  } else {
+    if(childSupport === "Yes") {
+      dependent = "efcNotDependentButHasDependent";
+    } else {
+      dependent = "efcNotDependentAndNoDependent";
     }
+  }
 
-    return calculatedTAG;
+  return dependent;
+}
+
+
+/* NOTE:  calculatedPell
+*  given EFC value and Pell Table, returns the Pell
+*  Grant amout the user can be awarded 
+*/ 
+function calculatePell(efc: number, pellTable: number[][]): number {
+  let calculatedPell = 0;
+
+  for(let row of pellTable) {
+    if((efc >= row[0]) && efc <= row[1]) {
+      calculatedPell = row[2];
+      break; 
+    }
   }
   
-  /* NOTE: calculateMerit
-  *  given user's EFC, GPA and Freshman/Transfer status,
-  *  as well as SAT/ACT test scores (if supplied, and user 
-  *  is a Freshman), determine their Merit award
-  */
-  function calculateMerit(gpa: number, hsOrTransfer: string,  meritTables: MeritTables, testScores?: TestScores): number {
-    let calculatedMerit = 0;
+  return calculatedPell;
+}
 
-    // NOTE: first determine if the user is Freshman or Transfer
-    if(hsOrTransfer === "High School") {
-      /* NOTE: user is incoming freshman, now determine if we are using
-      *  SAT/ACT test scores to calculate merit, or GPA, as supplying test
-      *  scores is optional. We use GPA if the user chose not to supply
-      *  standardized test scores
-      */
-      if(typeof testScores !== "undefined") {
-        // NOTE: we are using test scores, now determine which the user has provided, SAT or ACT
-        if(typeof testScores.SAT !== "undefined") {
-          // NOTE: we are using SAT scores
-          for(let r of meritTables.meritSAT) {
-            // NOTE: Find the row based on SAT score
-            if((testScores.SAT >= r[0]) && (testScores.SAT <= r[1])) {
-              // NOTE: find the correct GPA range
-              if((gpa >= r[2]) && (gpa <= r[3])) {
-                // NOTE: last value in row is our merit value
-                calculatedMerit = r[4];
-                break; // NOTE: we found the value, break FOR loop
-              }
-            }
-          }
-        } else {
-          // NOTE: we are using ACT scores
-          if(typeof testScores.ACT !== "undefined") {
-            for(let r of meritTables.meritACT) {
-              // NOTE: Find the row based on ACT score
-              if((testScores.ACT >= r[0]) && (testScores.ACT <= r[1])) {
-                // NOTE: Find the correct GPA range 
-                if((gpa >= r[2]) && (gpa <= r[3])) {
-                  calculatedMerit = r[4];
-                  break;
-                }
-              }
+/* NOTE: calculateTAG
+*  given the user's EFC value, use the TAG Table to 
+*  determine their Tuition Assistance Grant, if any
+*/
+function calculateTAG(efc: number, residency: string, tagTable: number[][]): number {
+  // NOTE: will remain 0 if user does not reside in New Jersey
+  let calculatedTAG = 0; 
+
+  if(residency === "New Jersey") {
+    for(let r of tagTable) {
+      if((efc >= r[0]) && efc <= r[1]) {
+        calculatedTAG = r[2];
+        break;
+      }
+    }
+  }
+
+  return calculatedTAG;
+}
+
+/* NOTE: calculateMerit
+*  given user's EFC, GPA and Freshman/Transfer status,
+*  as well as SAT/ACT test scores (if supplied, and user 
+*  is a Freshman), determine their Merit award
+*/
+function calculateMerit(gpa: number, hsOrTransfer: string,  meritTables: MeritTables, testScores?: TestScores): number {
+  let calculatedMerit = 0;
+
+  // NOTE: first determine if the user is Freshman or Transfer
+  if(hsOrTransfer === "High School") {
+    /* NOTE: user is incoming freshman, now determine if we are using
+    *  SAT/ACT test scores to calculate merit, or GPA, as supplying test
+    *  scores is optional. We use GPA if the user chose not to supply
+    *  standardized test scores
+    */
+    if(typeof testScores !== "undefined") {
+      // NOTE: we are using test scores, now determine which the user has provided, SAT or ACT
+      if(typeof testScores.SAT !== "undefined") {
+        // NOTE: we are using SAT scores
+        for(let r of meritTables.meritSAT) {
+          // NOTE: Find the row based on SAT score
+          if((testScores.SAT >= r[0]) && (testScores.SAT <= r[1])) {
+            // NOTE: find the correct GPA range
+            if((gpa >= r[2]) && (gpa <= r[3])) {
+              // NOTE: last value in row is our merit value
+              calculatedMerit = r[4];
+              break; // NOTE: we found the value, break FOR loop
             }
           }
         }
       } else {
-        // NOTE: user is not using test scores, use "test optional", only GPA needed
-        for(let r of meritTables.meritTestOptional) {
-          if((gpa >= r[0]) && (gpa <= r[1])) {
-            calculatedMerit = r[2];
-            break;
+        // NOTE: we are using ACT scores
+        if(typeof testScores.ACT !== "undefined") {
+          for(let r of meritTables.meritACT) {
+            // NOTE: Find the row based on ACT score
+            if((testScores.ACT >= r[0]) && (testScores.ACT <= r[1])) {
+              // NOTE: Find the correct GPA range 
+              if((gpa >= r[2]) && (gpa <= r[3])) {
+                calculatedMerit = r[4];
+                break;
+              }
+            }
           }
         }
       }
     } else {
-      // NOTE: user is a transfer, use transfer table (GPA only, but differnet ranges)
-      for(let r of meritTables.meritTransfer) {
+      // NOTE: user is not using test scores, use "test optional", only GPA needed
+      for(let r of meritTables.meritTestOptional) {
         if((gpa >= r[0]) && (gpa <= r[1])) {
           calculatedMerit = r[2];
           break;
         }
       }
     }
-
-    // NOTE: return the value we found
-    return calculatedMerit;
+  } else {
+    // NOTE: user is a transfer, use transfer table (GPA only, but differnet ranges)
+    for(let r of meritTables.meritTransfer) {
+      if((gpa >= r[0]) && (gpa <= r[1])) {
+        calculatedMerit = r[2];
+        break;
+      }
+    }
   }
 
-  /* NOTE: calculateNeeds
-  *  given EFC, GPA, needs table values, residency status and
-  *  HS/Transfer status, determine any needs-based award amount
-  */
-  function calculateNeeds(efc: number, gpa: number, needsTables: NeedsTables, residency: string, hsOrTransfer: string): number {
-    let calculatedNeeds = 0;
+  // NOTE: return the value we found
+  return calculatedMerit;
+}
 
-    // NOTE: determine residency
-    if(residency === "New Jersey") {
-      // NOTE: user is New Jersey resident, determine if transfer or freshman
-      if(hsOrTransfer === "high school") {
-        // NOTE: user is NJ resident AND Freshman
-        for(let r of needsTables.freshmanNeedsBasedEFCNJResident) {
-          if((efc >= r[0]) && (efc <= r[1])) {
-            calculatedNeeds = r[2];
-            break; // NOTE: faound the value, break out of FOR loop
-          }
+/* NOTE: calculateNeeds
+*  given EFC, GPA, needs table values, residency status and
+*  HS/Transfer status, determine any needs-based award amount
+*/
+function calculateNeeds(efc: number, gpa: number, needsTables: NeedsTables, residency: string, hsOrTransfer: string): number {
+  let calculatedNeeds = 0;
+
+  // NOTE: determine residency
+  if(residency === "New Jersey") {
+    // NOTE: user is New Jersey resident, determine if transfer or freshman
+    if(hsOrTransfer === "high school") {
+      // NOTE: user is NJ resident AND Freshman
+      for(let r of needsTables.freshmanNeedsBasedEFCNJResident) {
+        if((efc >= r[0]) && (efc <= r[1])) {
+          calculatedNeeds = r[2];
+          break; // NOTE: faound the value, break out of FOR loop
         }
-      } else {
-        // NOTE: User is NJ Resident, but Transfer Student
-        for(let r of needsTables.transferNeedsBasedEFCNJResident) {
-          // NOTE: transfer calculations are based on EFC & GPA ranges
-          if((efc >= r[0]) && (efc <= r[1])) {
-            if(gpa < 3) {
-              calculatedNeeds = r[2];
-              break;
-            }
-            if((gpa >=3) && (gpa <= 3.49)) {
-              calculatedNeeds = r[3];
-              break;
-            }
-            if(gpa >= 3.5) {
-              calculatedNeeds = r[4];
-              break;
-            }
+      }
+    } else {
+      // NOTE: User is NJ Resident, but Transfer Student
+      for(let r of needsTables.transferNeedsBasedEFCNJResident) {
+        // NOTE: transfer calculations are based on EFC & GPA ranges
+        if((efc >= r[0]) && (efc <= r[1])) {
+          if(gpa < 3) {
+            calculatedNeeds = r[2];
+            break;
+          }
+          if((gpa >=3) && (gpa <= 3.49)) {
+            calculatedNeeds = r[3];
+            break;
+          }
+          if(gpa >= 3.5) {
+            calculatedNeeds = r[4];
+            break;
           }
         }
       }
     }
-
-    return calculatedNeeds;
   }
 
-  /* NOTE: calculateEFC
-  *  given depenency status, income range, number in family, 
-  *  number in college, determine Expect Family Contribution
-  *  income range is a number of the array index of the value 
-  *  corresponding to the income range option the user selected:
-  *     < $30,000 = 0
-  *     $30,000 - 39,999 = 1
-  *     ...
-  *     $90,000 - 99,999 = 7
-  *     $100,000 and up = 8
-  */
-  function calculateEFC(dependency: string, dependentTable: EFCTable[], numberInCollege: number, numberInFamily: number, incomeRange: number): number {
-    let calculatedEFC = 0;
-    // NOTE: user is dependent or non-dependent with dependencies
-    if((dependency === "efcDependent") || (dependency === "efcNotDependentButHasDependent")) {
+  return calculatedNeeds;
+}
+
+/* NOTE: calculateEFC
+*  given depenency status, income range, number in family, 
+*  number in college, determine Expect Family Contribution
+*  income range is a number of the array index of the value 
+*  corresponding to the income range option the user selected:
+*     < $30,000 = 0
+*     $30,000 - 39,999 = 1
+*     ...
+*     $90,000 - 99,999 = 7
+*     $100,000 and up = 8
+*/
+function calculateEFC(dependency: string, dependentTable: EFCTable[], numberInCollege: number, numberInFamily: number, incomeRange: number): number {
+  console.log(incomeRange);
+  let calculatedEFC = 0;
+  // NOTE: user is dependent or non-dependent with dependencies
+  if((dependency === "efcDependent") || (dependency === "efcNotDependentButHasDependent")) {
+    console.log(dependentTable);
+    console.log(`number in college: ${numberInCollege}`);
+    console.log(`Number in family: ${numberInFamily}`);
+
+    for(let r of dependentTable) {
+      if(numberInCollege === r.numberInCollege) {
+        if(numberInFamily === r.numberInFamily) {
+            console.log(r.incomeRanges);
+            // NOTE: we have the "row", return the value at the array index corresponding to the income range
+            calculatedEFC = r.incomeRanges[incomeRange];
+            break; // NOTE: break FOR loop, found our value
+        }
+      } 
+    }
+  } else {
+    // NOTE: for efcNotDependentAndNoDependent, the table only goes up to 2 in family and 2 in college, to account for more of each, consider 2 and 2 as "2 or more - 2 or more"
+    let incomeRanges: number[] = [];
+    if((numberInCollege > 2) || (numberInFamily > 2)) {
+      incomeRanges = dependentTable[2].incomeRanges;
+    } else {
       for(let r of dependentTable) {
         if(numberInCollege === r.numberInCollege) {
           if(numberInFamily === r.numberInFamily) {
-              // NOTE: we have the "row", return the value at the array index corresponding to the income range
-              calculatedEFC = r.incomeRanges[incomeRange];
-              break; // NOTE: break FOR loop, found our value
-          }
-        } 
-      }
-    } else {
-      // NOTE: for efcNotDependentAndNoDependent, the table only goes up to 2 in family and 2 in college, to account for more of each, consider 2 and 2 as "2 or more - 2 or more"
-      let incomeRanges: number[] = [];
-      if((numberInCollege > 2) || (numberInFamily > 2)) {
-        incomeRanges = dependentTable[2].incomeRanges;
-      } else {
-        for(let r of dependentTable) {
-          if(numberInCollege === r.numberInCollege) {
-            if(numberInFamily === r.numberInFamily) {
-              incomeRanges = r.incomeRanges;
-            }
+            incomeRanges = r.incomeRanges;
           }
         }
       }
-
-      // NOTE: determine value by same method as above, index value in incomeRanges corresponding to the matching income range
-      calculatedEFC = incomeRanges[incomeRange];
     }
 
-    return calculatedEFC;
+    // NOTE: determine value by same method as above, index value in incomeRanges corresponding to the matching income range
+    calculatedEFC = incomeRanges[incomeRange];
   }
 
-  /* NOTE: calculatePOA  
-  *  given whether user is planning to live on campus,
-  *  off-campus with family, or on their own-off campus,
-  *  and their status as a current NJ or Non-NJ resident, 
-  *  determine their Price of Admission from the table
-  */
-  function calculatePOA(plannedLivingStatus: string, residency: string, poaTable:POATable): object {
-    let calculatedPOA: object = {};
-    let poaIndex: number = 0;
+  return calculatedEFC;
+}
 
-    if(plannedLivingStatus === "On-Campus") {
-      poaIndex = 0;
-      if(residency === "New Jersey") {
-        poaIndex = 1;
-      } else {
-        poaIndex = 2;
-      }
+/* NOTE: calculatePOA  
+*  given whether user is planning to live on campus,
+*  off-campus with family, or on their own-off campus,
+*  and their status as a current NJ or Non-NJ resident, 
+*  determine their Price of Admission from the table
+*/
+function calculatePOA(plannedLivingStatus: string, residency: string, poaTable:POATable): object {
+  let calculatedPOA: object = {};
+  let poaIndex: number = 0;
+
+  if(plannedLivingStatus === "On-Campus") {
+    poaIndex = 0;
+    if(residency === "New Jersey") {
+      poaIndex = 1;
+    } else {
+      poaIndex = 2;
     }
-    
-    calculatedPOA = {
-      totalCost: poaTable.poatotaladmissioncost[poaIndex],
-      tuitionAndFees: poaTable.poatuitionfees[poaIndex],
-      booksAndSupplies: poaTable.poabookssupplies[poaIndex],
-      roomAndBoard: poaTable.poaroomboard[poaIndex],
-      otherExpenses: poaTable.poaotherexpenses[poaIndex]
-    }
+  }
+  
+  calculatedPOA = {
+    totalCost: poaTable.poatotaladmissioncost[poaIndex],
+    tuitionAndFees: poaTable.poatuitionfees[poaIndex],
+    booksAndSupplies: poaTable.poabookssupplies[poaIndex],
+    roomAndBoard: poaTable.poaroomboard[poaIndex],
+    otherExpenses: poaTable.poaotherexpenses[poaIndex]
+  }
 
-    return calculatedPOA;
-  } 
-
-} // END Module
-
-export default Calculation;
+  return calculatedPOA;
+} 

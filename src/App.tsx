@@ -13,7 +13,7 @@ import Summary from './pages/summary';
 import { Container, Row, Col } from 'react-bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { prop } from './util/util'; 
-import * as Calculator from './calculation/calculation';
+
 
 class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
@@ -32,8 +32,22 @@ class App extends React.Component<AppProps, AppState> {
       questionLogic: QuestionLogic.logic,
       userInput: {},
       disclaimerAccepted: false
-    } 
+    }  
   } 
+
+  /* NOTE: since there is a lot of data that needs to go to the 
+  *  Calculator part of the app, organize and package up the data
+  *  we need as one object to send to the Summary compnent as props
+  *  instead of a large number or individual props
+  */ 
+  packageSummaryData = () => {
+    let calculationData = {
+      calculationTables: this.state.calculationTables,
+      userInput: this.state.userInput
+    };
+
+    return calculationData;
+  }
 
   componentDidMount = () => {
     let _ssidKeys: LooseObject = {};
@@ -167,10 +181,10 @@ class App extends React.Component<AppProps, AppState> {
           );
         } else {
           return <p>Loading...</p>;
-        }
+        } 
       } else {
-        return <Summary />;
-      }
+        return <Summary calculationData={this.packageSummaryData()} />;
+      } 
     }
   }
 }
