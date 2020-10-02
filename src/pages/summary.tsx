@@ -7,15 +7,16 @@ import Container from 'react-bootstrap/Container';
 import { generateReport } from '../calculation/calculation';
 
 export const Summary: React.FC<SummaryProps> = (props) => {
-  let results = generateReport(props.calculationData);
-
+  let results: Report = generateReport(props.calculationData);
 
   return (
     <Container>
       <Row>
         <Col md={12}>
           <p>Summary</p>
-          <p>EFC: {results} </p>
+          <p>Dependency: {results.dependency}</p>
+          <p>EFC: {results.EFC}</p>
+          <p>Pell: {results.Pell}</p>
         </Col>
       </Row>
     </Container>

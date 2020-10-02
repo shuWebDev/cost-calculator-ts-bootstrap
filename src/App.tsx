@@ -2,7 +2,7 @@
 import React from 'react';
 import * as EFCData from './data/efc.json';
 import * as MeritData from './data/merit.json';
-import * as PellData from './data/merit.json';
+import * as PellData from './data/pell.json';
 import * as TAGData from './data/tag.json';
 import * as POAData from './data/tag.json';
 import Disclaimer from './pages/disclaimer';

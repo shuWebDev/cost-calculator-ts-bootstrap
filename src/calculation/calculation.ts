@@ -1,9 +1,15 @@
 ///<reference path="../typings/calculation.d.ts" />
+import * as Util from '../util/util';
 
-
-  
 // NOTE: Generates the final report
-export function generateReport(calculationData: CalculationData): any {
+export function generateReport(calculationData: CalculationData): Report {
+  let report: Report = {
+    dependency: "",
+    EFC: 0,
+    Pell: 0
+  };
+
+  //console.log(calculationData);
   /* NOTE: determine our dependency status to we can calculate
   *  our EFC value which most subsequent calculations depend
   *  on. 
@@ -14,74 +20,33 @@ export function generateReport(calculationData: CalculationData): any {
     calculationData.userInput['marital-status']
   );
 
-  console.log(_dependency);
-  console.log(calculationData.calculationTables.EFC.default);
+  report['dependency'] = (_dependency === "efcDependent")? "Dependent": "Not Dependent";
 
   /* NOTE: given the table indicated by _dependency, match up
   *  the number in family and number in college (of that family),
   *  and then use the associated incomeRanges array to find the value
   *  at the index corresponding to the user's income range. This value
-  *  will be their EFC value
+  *  will be their EFC value 
   */ 
   let _efcValue: number = calculateEFC(
     _dependency, 
     calculationData.calculationTables.EFC.default[`${_dependency}`],
-    resolveNumberInCollege(calculationData.userInput['form-people-in-college']),
-    resolveNumberInFamily(calculationData.userInput['form-people-in-household']),
-    resolveIncomeRange(calculationData.userInput['form-household-income'])
+    Util.resolveNumberInCollege(calculationData.userInput['form-people-in-college']),
+    Util.resolveNumberInFamily(calculationData.userInput['form-people-in-household']),
+    Util.resolveIncomeRange(calculationData.userInput['form-household-income'])
   );
 
-  return _efcValue;
-}
+  report['EFC'] = _efcValue;
 
-function resolveNumberInFamily(value: string): number {
-  let returnValue: number = 0;
+  // NOTE: Given EFC, calculate Pell Grant award amount
+  let _pellValue: number = calculatePell(
+    _efcValue, 
+    calculationData.calculationTables.Pell.default
+  );
 
-  switch(value) {
-    case "Three": returnValue = 3; break;
-    case "Four": returnValue = 4; break;
-    case "Five": returnValue = 5; break;
-    case "Six or more": returnValue = 6; break;
-    default: returnValue = 2; break;
-  }
+  report['Pell'] = _pellValue;
 
-  return returnValue;
-}
-
-function resolveNumberInCollege(value: string): number {
-  let returnValue: number = 0;
-
-  switch(value) {
-    case "One Child": returnValue = 1; break;
-    case "Two Children": returnValue = 2; break;
-    default: returnValue = 3; break;
-  }
-
-  return returnValue;
-}
-
-/* NOTE: resolveIncomeRange
-*  given the income range as a string from the value of the radio
-*  button the user selected, resolve into a number corresponding
-*  to the EFC value for that income range's EFC value in the table
-*/
-function resolveIncomeRange(range: string): number {
-  let index: number = 0;
-  console.log(range);
-  switch(range) {
-    case "$30,000 - $39,999": index = 1; break;
-    case "$40,000 - $49,999": index = 2; break;
-    case "$50,000 - $59,999": index = 3; break;
-    case "$60,000 - $69,999": index = 4; break;
-    case "$70,000 - $79,999": index = 5; break;
-    case "$80,000 - $89,999": index = 6; break;
-    case "$90,000 - $99,999": index = 7; break;
-    case "$100,000 or above": index = 8; break;
-    default: index = 0; break;
-   }  
-
-   console.log(index);
-  return index;
+  return report;
 }
 
 /* NOTE: determineDependency
@@ -115,6 +80,9 @@ function determineDependency(age: string, childSupport: string, married: string)
 */ 
 function calculatePell(efc: number, pellTable: number[][]): number {
   let calculatedPell = 0;
+
+  console.log(`EFC: ${efc}`);
+  console.log(pellTable);
 
   for(let row of pellTable) {
     if((efc >= row[0]) && efc <= row[1]) {
@@ -269,18 +237,13 @@ function calculateNeeds(efc: number, gpa: number, needsTables: NeedsTables, resi
 *     $100,000 and up = 8
 */
 function calculateEFC(dependency: string, dependentTable: EFCTable[], numberInCollege: number, numberInFamily: number, incomeRange: number): number {
-  console.log(incomeRange);
+  
   let calculatedEFC = 0;
   // NOTE: user is dependent or non-dependent with dependencies
   if((dependency === "efcDependent") || (dependency === "efcNotDependentButHasDependent")) {
-    console.log(dependentTable);
-    console.log(`number in college: ${numberInCollege}`);
-    console.log(`Number in family: ${numberInFamily}`);
-
     for(let r of dependentTable) {
       if(numberInCollege === r.numberInCollege) {
         if(numberInFamily === r.numberInFamily) {
-            console.log(r.incomeRanges);
             // NOTE: we have the "row", return the value at the array index corresponding to the income range
             calculatedEFC = r.incomeRanges[incomeRange];
             break; // NOTE: break FOR loop, found our value
