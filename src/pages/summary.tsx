@@ -17,7 +17,17 @@ export const Summary: React.FC<SummaryProps> = (props) => {
           <p>Dependency: {results.dependency}</p>
           <p>EFC: {results.EFC}</p>
           <p>Pell: {results.Pell}</p>
-        </Col>
+          <p>TAG: {results.TAG}</p>
+          <p>Merit: {results.Merit}</p>
+          <p>Needs: {results.Needs}</p>
+          <p>
+            <strong>
+              Total: {results.TAG + results.Pell + results.Merit + results.Needs}
+            </strong>
+          </p>
+          <hr />
+          {console.log(results.POA)}
+        </Col> 
       </Row>
     </Container>
   );

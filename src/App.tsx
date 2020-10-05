@@ -4,7 +4,7 @@ import * as EFCData from './data/efc.json';
 import * as MeritData from './data/merit.json';
 import * as PellData from './data/pell.json';
 import * as TAGData from './data/tag.json';
-import * as POAData from './data/tag.json';
+import * as POAData from './data/poa.json';
 import Disclaimer from './pages/disclaimer';
 import * as PageData from './questions/question-bank.json';
 import * as QuestionLogic from './questions/question-logic.json';

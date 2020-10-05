@@ -30,7 +30,7 @@ export function resolveIncomeRange(range: string): number {
     default: index = 0; break;
    }  
 
-   console.log(index);
+   //console.log(index);
   return index;
 }
 

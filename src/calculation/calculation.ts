@@ -6,7 +6,17 @@ export function generateReport(calculationData: CalculationData): Report {
   let report: Report = {
     dependency: "",
     EFC: 0,
-    Pell: 0
+    Pell: 0,
+    TAG: 0,
+    Merit: 0,
+    Needs: 0,
+    POA: {
+      totaladmissioncost: 0,
+      tuitionfees: 0,
+      bookssupplies: 0,
+      roomboard: 0,
+      otherexpenses: 0
+    }
   };
 
   //console.log(calculationData);
@@ -46,6 +56,48 @@ export function generateReport(calculationData: CalculationData): Report {
 
   report['Pell'] = _pellValue;
 
+  // NOTE: Given EFC and residency status, calculate Tuition Assistance Grant
+  let _tagValue: number = calculateTAG(
+    _efcValue, 
+    calculationData.userInput['form-current-residence'], calculationData.calculationTables.TAG.default
+  );
+
+  report['TAG'] = _tagValue;
+
+  // NOTE: GPA, freshman/transfer status, and test scores, calculate the user's Merit Award
+  let _meritValue: number = calculateMerit(
+    parseFloat(calculationData.userInput['form-current-gpa']),
+    calculationData.userInput['form-highschool-transfer'],
+    calculationData.calculationTables.Merit.default,
+    {
+      SAT: parseInt(calculationData.userInput['form-erw-sat']) + parseInt(calculationData.userInput['form-math-sat']),
+      ACT: parseInt(calculationData.userInput['form-act'])
+    }
+  ); 
+
+  report['Merit'] = _meritValue;
+
+  // NOTE: calculate user's Needs-Based Award based on GPA, current state residence and transfer status
+  console.log(calculationData.calculationTables.EFC.needsBasedEFC);
+  let _needsValue: number = calculateNeeds(
+    _efcValue,
+    parseFloat(calculationData.userInput['form-current-gpa']),
+    calculationData.calculationTables.EFC.needsBasedEFC,
+    calculationData.userInput['form-current-residence'],
+    calculationData.userInput['form-highschool-transfer']
+  );
+
+  report['Needs'] = _needsValue;
+
+  // NOTE: calculate Price of Attending
+  let _poaValue: LooseObject = calculatePOA(calculationData.userInput['form-planned-residence'],
+  calculationData.userInput['form-current-residence'],
+    calculationData.calculationTables.POA.default
+  );
+
+  report['POA'] = _poaValue;
+
+  // NOTE: return our final report
   return report;
 }
 
@@ -81,8 +133,8 @@ function determineDependency(age: string, childSupport: string, married: string)
 function calculatePell(efc: number, pellTable: number[][]): number {
   let calculatedPell = 0;
 
-  console.log(`EFC: ${efc}`);
-  console.log(pellTable);
+  //console.log(`EFC: ${efc}`);
+  //console.log(pellTable);
 
   for(let row of pellTable) {
     if((efc >= row[0]) && efc <= row[1]) {
@@ -101,7 +153,7 @@ function calculatePell(efc: number, pellTable: number[][]): number {
 function calculateTAG(efc: number, residency: string, tagTable: number[][]): number {
   // NOTE: will remain 0 if user does not reside in New Jersey
   let calculatedTAG = 0; 
-
+  //console.log(tagTable);
   if(residency === "New Jersey") {
     for(let r of tagTable) {
       if((efc >= r[0]) && efc <= r[1]) {
@@ -121,7 +173,7 @@ function calculateTAG(efc: number, residency: string, tagTable: number[][]): num
 */
 function calculateMerit(gpa: number, hsOrTransfer: string,  meritTables: MeritTables, testScores?: TestScores): number {
   let calculatedMerit = 0;
-
+  //console.log(testScores);
   // NOTE: first determine if the user is Freshman or Transfer
   if(hsOrTransfer === "High School") {
     /* NOTE: user is incoming freshman, now determine if we are using
@@ -161,7 +213,7 @@ function calculateMerit(gpa: number, hsOrTransfer: string,  meritTables: MeritTa
       }
     } else {
       // NOTE: user is not using test scores, use "test optional", only GPA needed
-      for(let r of meritTables.meritTestOptional) {
+      for(let r of meritTables.merittestoptional) {
         if((gpa >= r[0]) && (gpa <= r[1])) {
           calculatedMerit = r[2];
           break;
@@ -170,7 +222,8 @@ function calculateMerit(gpa: number, hsOrTransfer: string,  meritTables: MeritTa
     }
   } else {
     // NOTE: user is a transfer, use transfer table (GPA only, but differnet ranges)
-    for(let r of meritTables.meritTransfer) {
+    //console.log(meritTables.merittransfer);
+    for(let r of meritTables.merittransfer) {
       if((gpa >= r[0]) && (gpa <= r[1])) {
         calculatedMerit = r[2];
         break;
@@ -189,6 +242,7 @@ function calculateMerit(gpa: number, hsOrTransfer: string,  meritTables: MeritTa
 function calculateNeeds(efc: number, gpa: number, needsTables: NeedsTables, residency: string, hsOrTransfer: string): number {
   let calculatedNeeds = 0;
 
+  console.log(needsTables);
   // NOTE: determine residency
   if(residency === "New Jersey") {
     // NOTE: user is New Jersey resident, determine if transfer or freshman
@@ -217,6 +271,25 @@ function calculateNeeds(efc: number, gpa: number, needsTables: NeedsTables, resi
             calculatedNeeds = r[4];
             break;
           }
+        }
+      }
+    }
+  } else {
+    // NOTE: User is not NJ resident
+    if(hsOrTransfer === "high school") {
+      // NOTE: user is NJ resident AND Freshman
+      for(let r of needsTables.freshmanNeedsBasedEFCNonNJResident) {
+        if((efc >= r[0]) && (efc <= r[1])) {
+          calculatedNeeds = r[2];
+          break; // NOTE: faound the value, break out of FOR loop
+        }
+      }
+    } else {
+      // NOTE: final case: user is non NJ resident and transfer
+      for(let r of needsTables.transferNeedsBasedEFCNonNJResident) {
+        if((efc >= r[0]) && (efc <= r[1])) {
+          calculatedNeeds = r[2];
+          break; // NOTE: faound the value, break out of FOR loop
         }
       }
     }
