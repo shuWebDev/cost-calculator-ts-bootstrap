@@ -78,11 +78,11 @@ export function generateReport(calculationData: CalculationData): Report {
   report['Merit'] = _meritValue;
 
   // NOTE: calculate user's Needs-Based Award based on GPA, current state residence and transfer status
-  console.log(calculationData.calculationTables.EFC.needsBasedEFC);
+  console.log(calculationData.calculationTables.EFC.default.needsBasedEFC);
   let _needsValue: number = calculateNeeds(
     _efcValue,
     parseFloat(calculationData.userInput['form-current-gpa']),
-    calculationData.calculationTables.EFC.needsBasedEFC,
+    calculationData.calculationTables.EFC.default.needsBasedEFC,
     calculationData.userInput['form-current-residence'],
     calculationData.userInput['form-highschool-transfer']
   );
@@ -256,6 +256,7 @@ function calculateNeeds(efc: number, gpa: number, needsTables: NeedsTables, resi
       }
     } else {
       // NOTE: User is NJ Resident, but Transfer Student
+      console.log(needsTables.transferNeedsBasedEFCNJResident);
       for(let r of needsTables.transferNeedsBasedEFCNJResident) {
         // NOTE: transfer calculations are based on EFC & GPA ranges
         if((efc >= r[0]) && (efc <= r[1])) {
