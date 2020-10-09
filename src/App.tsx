@@ -31,7 +31,7 @@ class App extends React.Component<AppProps, AppState> {
       pages: PageData.pages,
       questionLogic: QuestionLogic.logic,
       userInput: {},
-      disclaimerAccepted: false
+      disclaimerAccepted: true
     }  
   } 
 
@@ -76,7 +76,9 @@ class App extends React.Component<AppProps, AppState> {
     return;
   }
 
-  inputChangeHandler = (e:React.ChangeEvent<HTMLInputElement>, ssID: string) => {
+  inputChangeHandler = (
+    e:React.ChangeEvent<HTMLInputElement>, 
+    ssID: string) => {
     //console.log(`${ssID} :: ${e.currentTarget.value}`);
     
     // NOTE: given the id, update the input value in state

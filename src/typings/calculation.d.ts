@@ -61,5 +61,5 @@ interface Report {
   TAG: number,
   Merit: number,
   Needs: number,
-  POA: {}
+  POA: LooseObject
 }

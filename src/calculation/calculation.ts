@@ -78,7 +78,7 @@ export function generateReport(calculationData: CalculationData): Report {
   report['Merit'] = _meritValue;
 
   // NOTE: calculate user's Needs-Based Award based on GPA, current state residence and transfer status
-  console.log(calculationData.calculationTables.EFC.default.needsBasedEFC);
+  //console.log(calculationData.calculationTables.EFC.default.needsBasedEFC);
   let _needsValue: number = calculateNeeds(
     _efcValue,
     parseFloat(calculationData.userInput['form-current-gpa']),
@@ -98,6 +98,7 @@ export function generateReport(calculationData: CalculationData): Report {
   report['POA'] = _poaValue;
 
   // NOTE: return our final report
+  console.log(report);
   return report;
 }
 
@@ -242,7 +243,7 @@ function calculateMerit(gpa: number, hsOrTransfer: string,  meritTables: MeritTa
 function calculateNeeds(efc: number, gpa: number, needsTables: NeedsTables, residency: string, hsOrTransfer: string): number {
   let calculatedNeeds = 0;
 
-  console.log(needsTables);
+  //console.log(needsTables);
   // NOTE: determine residency
   if(residency === "New Jersey") {
     // NOTE: user is New Jersey resident, determine if transfer or freshman
@@ -256,7 +257,7 @@ function calculateNeeds(efc: number, gpa: number, needsTables: NeedsTables, resi
       }
     } else {
       // NOTE: User is NJ Resident, but Transfer Student
-      console.log(needsTables.transferNeedsBasedEFCNJResident);
+      //console.log(needsTables.transferNeedsBasedEFCNJResident);
       for(let r of needsTables.transferNeedsBasedEFCNJResident) {
         // NOTE: transfer calculations are based on EFC & GPA ranges
         if((efc >= r[0]) && (efc <= r[1])) {
@@ -315,10 +316,13 @@ function calculateEFC(dependency: string, dependentTable: EFCTable[], numberInCo
   let calculatedEFC = 0;
   // NOTE: user is dependent or non-dependent with dependencies
   if((dependency === "efcDependent") || (dependency === "efcNotDependentButHasDependent")) {
+    console.log(dependentTable);
+    console.log(`${numberInCollege} in college, ${numberInFamily} in family, ${incomeRange} income range index`);
     for(let r of dependentTable) {
       if(numberInCollege === r.numberInCollege) {
         if(numberInFamily === r.numberInFamily) {
             // NOTE: we have the "row", return the value at the array index corresponding to the income range
+            console.log(r.incomeRanges);
             calculatedEFC = r.incomeRanges[incomeRange];
             break; // NOTE: break FOR loop, found our value
         }
