@@ -5,6 +5,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Table from 'react-bootstrap/Table';
 import Container from 'react-bootstrap/Container';
+import Button from 'react-bootstrap/Button';
 import { generateReport } from '../calculation/calculation';
 
 export const Summary: React.FC<SummaryProps> = (props) => {
@@ -87,6 +88,7 @@ export const Summary: React.FC<SummaryProps> = (props) => {
             These estimates do not represent a final determination, or actual award, of financial assistance or a final net price; they are only estimates based on price of attendance and financial aid provided to students in 2019-2020. Price of attendance and financial aid availability change year to year. These estimates shall not be binding on the Secretary of Education, the institution of higher education, or the State. <br />
             Not all students receive financial aid. In 2019-2020, 92% of our full-time students enrolling for college for the first time received grant/scholarship aid. Students may also be eligible for student loans and work-study. Students must complete the Free Application for Federal Student Aid (FAFSA) in order to determine their eligibility for Federal financial aid that includes Federal grant, loan, or work-study assistance. For more information on applying for Federal student aid, go to <a aria-label="FAFSA" href="http://www.fafsa.ed.gov/">http://www.fafsa.ed.gov/</a>
           </p>
+          <Button variant="outline-success" onClick={(e) => {props.resetHandler(e)}}>Start Over</Button>
           {console.log(results.POA)}
         </Col> 
       </Row>

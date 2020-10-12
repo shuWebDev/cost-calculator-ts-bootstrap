@@ -5,11 +5,11 @@ import { Col }  from 'react-bootstrap';
 export const RadioQuestion: React.FC<QuestionComponentProps>  = (props) => {
   let qd: PageQuestion = props.questionData;
   return (
-    <Col md={{span: 2, offset: 1}}>
+    <Col md={4}>
       <Form.Group controlId={qd.controlId}>
         <Form.Label>{qd.label}</Form.Label>
         <hr />
-        {
+        { 
           qd.options.map((option, index) => {
             return <Form.Check key={`input-${qd.controlId}-${index}`} type="radio" id={option} name={qd.controlId} value={option} label={option} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {props.changeHandler(e, qd.stateStorageID)}} checked={props.currentValue === option} />
           })

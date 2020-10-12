@@ -31,7 +31,7 @@ class App extends React.Component<AppProps, AppState> {
       pages: PageData.pages,
       questionLogic: QuestionLogic.logic,
       userInput: {},
-      disclaimerAccepted: true
+      disclaimerAccepted: false
     }  
   } 
 
@@ -64,6 +64,24 @@ class App extends React.Component<AppProps, AppState> {
       ...this.state,
       userInput: _ssidKeys
     });
+  }
+
+  resetHandler = (e:React.MouseEvent<HTMLButtonElement>) => {
+    let _ssidKeys: LooseObject = {};
+    for(let p of this.state.pages) {
+      for(let q in p) {
+        _ssidKeys = {
+          ..._ssidKeys,
+          [`${p[q].stateStorageID}`]: prop(p[q], "default")
+        }
+      }
+    }
+    this.setState({
+      currentPage: 0,
+      userInput: _ssidKeys
+    });
+
+    return;
   }
 
   pageSubmitHandler = (e:React.MouseEvent<HTMLButtonElement>) => {
@@ -148,14 +166,16 @@ class App extends React.Component<AppProps, AppState> {
     // NOTE: User must accept the disclaimer first
     if(!this.state.disclaimerAccepted) {
       return (
+        <>
+        <h2 className="text-center">Net Cost Calculator</h2>
         <Container>
-          <h2 className="text-center">Net Cost Calculator</h2>
           <Row>
             <Col md={{span:8, offset: 2}}>
               <Disclaimer acceptHandler={this.acceptHandler} />
               </Col>
           </Row>
         </Container>
+        </>
       );
     } else {
       // NOTE: make sure we're not on the last page
@@ -185,10 +205,11 @@ class App extends React.Component<AppProps, AppState> {
           return <p>Loading...</p>;
         } 
       } else {
-        return <Summary calculationData={this.packageSummaryData()} />;
+        return <Summary calculationData={this.packageSummaryData()} 
+        resetHandler={this.resetHandler} />;
       } 
     }
   }
-}
+} 
 
 export default App;

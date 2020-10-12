@@ -20,3 +20,8 @@ interface LogicOrPage {
   logicORLeft: string[],
   logicORRight: string[]
 }
+
+interface SummaryProps {
+  resetHandler: function,
+  calculationData: CalculationData
+}
