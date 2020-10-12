@@ -195,7 +195,7 @@ function calculateMerit(gpa: number, hsOrTransfer: string,  meritTables: MeritTa
               calculatedMerit = r[4];
               break; // NOTE: we found the value, break FOR loop
             }
-          }
+          } 
         }
       } else {
         // NOTE: we are using ACT scores
@@ -243,12 +243,13 @@ function calculateMerit(gpa: number, hsOrTransfer: string,  meritTables: MeritTa
 function calculateNeeds(efc: number, gpa: number, needsTables: NeedsTables, residency: string, hsOrTransfer: string): number {
   let calculatedNeeds = 0;
 
-  //console.log(needsTables);
+  console.log(hsOrTransfer);
   // NOTE: determine residency
   if(residency === "New Jersey") {
     // NOTE: user is New Jersey resident, determine if transfer or freshman
-    if(hsOrTransfer === "high school") {
+    if(hsOrTransfer === "High School") {
       // NOTE: user is NJ resident AND Freshman
+      console.log("Needs: NJ Freshman");
       for(let r of needsTables.freshmanNeedsBasedEFCNJResident) {
         if((efc >= r[0]) && (efc <= r[1])) {
           calculatedNeeds = r[2];
@@ -256,6 +257,7 @@ function calculateNeeds(efc: number, gpa: number, needsTables: NeedsTables, resi
         }
       }
     } else {
+      console.log("Needs: NJ Transfer");
       // NOTE: User is NJ Resident, but Transfer Student
       //console.log(needsTables.transferNeedsBasedEFCNJResident);
       for(let r of needsTables.transferNeedsBasedEFCNJResident) {
@@ -278,7 +280,8 @@ function calculateNeeds(efc: number, gpa: number, needsTables: NeedsTables, resi
     }
   } else {
     // NOTE: User is not NJ resident
-    if(hsOrTransfer === "high school") {
+    console.log("Needs: OOS Freshman");
+    if(hsOrTransfer === "High School") {
       // NOTE: user is NJ resident AND Freshman
       for(let r of needsTables.freshmanNeedsBasedEFCNonNJResident) {
         if((efc >= r[0]) && (efc <= r[1])) {
@@ -287,6 +290,7 @@ function calculateNeeds(efc: number, gpa: number, needsTables: NeedsTables, resi
         }
       }
     } else {
+      console.log("Needs: OOS Transfer");
       // NOTE: final case: user is non NJ resident and transfer
       for(let r of needsTables.transferNeedsBasedEFCNonNJResident) {
         if((efc >= r[0]) && (efc <= r[1])) {
